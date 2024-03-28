@@ -1,0 +1,38 @@
+pipeline {
+ agent any
+ stages {
+ stage('Build') {
+ steps {
+ bat 'python -m venv venv'
+ bat 'venv\\Scripts\\activate && pip install -r
+requirements.txt'
+ }
+ }
+ stage('Test') {
+ steps {
+ bat 'venv\\Scripts\\activate && pytest'
+ }
+ }
+ stage('Build Docker Image') {
+ steps {
+ script {
+ bat 'docker login -u "madhavashrit" -p "*********"'
+ bat 'docker build -t my-python-app .'
+ }
+ }
+ }
+ stage('Run Tests in Docker') {
+ steps {
+ script {
+ bat 'docker run --rm my-python-app pytest'
+ }
+ }
+ }stage('Deploy to Docker Swarm') {
+ steps {
+ script {
+ bat 'docker stack deploy -c docker_compose.yml my-appstack'
+ }
+ }
+ }
+ }
+}
