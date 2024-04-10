@@ -1,0 +1,21 @@
+- hosts: all
+  become: yes
+  tasks:
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Ensure Docker service is running
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Deploy application
+      docker_container:
+        name: myapp
+        image: myapp
+        state: started
+        ports:
+          - "5000:5000"
